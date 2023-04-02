@@ -4,5 +4,5 @@
 ### Authors
 * Aaron Csetter
 * Ian Peña
-* 
+* Nathan Davis
 * 
