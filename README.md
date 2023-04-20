@@ -14,6 +14,6 @@ python -m pip install -r requirements.txt
 
 ### Authors
 * Aaron Csetter
-* 
-* 
-* 
+* Ian Peña
+* Nathan Davis
+* Dmytro Dobrynin
