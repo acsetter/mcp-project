@@ -28,7 +28,8 @@ def color_order(g: nx.Graph, P: set) -> (list, list):
             nodes.remove(v)
             color.append(k)
             order.append(v)
-            q = list(filter(lambda x: x not in list(g.neighbors(v)), q))
+            neighbors = g.adj[v]
+            q = list(filter(lambda x: x not in neighbors, q))
         k += 1
 
     return color, order

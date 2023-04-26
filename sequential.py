@@ -5,8 +5,10 @@ Comparing Sequential and Parallel Algorithm Performance for Solving the Maximum 
 By: Aaron Csetter, Dmytro Dobryin, Ian Pena, and Nathan Davis
 UNCW: Spring 2023
 """
+
 from networkx import Graph
 from color import color_order
+import utils
 
 
 def seq_max_clique(g: Graph):
@@ -18,43 +20,49 @@ def seq_max_clique(g: Graph):
     :param g: (Graph) a networkx graph
     :return: (set) the set of vertices that belong to the maximum clique of graph 'g'
     """
-    def expand(g: Graph, c: set, p: set, c_max: set):
+    def expand(c: set, p: set, c_max: set):
         """
         The recursive part of the algorithm
-        :param g: (Graph) a networkx graph
         :param c: (set) the candidate set of vertices
         :param p: (set) the set of unprocessed vertices
         :param c_max: (set) the current best candidate max clique
         :return: (set) the maximum clique of graph 'g'
         """
         color, order = color_order(g, p)
-        # print(color, order)
         for i in range(len(p) - 1, -1, -1):
-            # print(f"|c={c}| + color[i]={color[i]} > |c_max={c_max}|")
             if len(c) + color[i] > len(c_max):
                 v = order[i]
-                # print("v=", v)
                 c = c.union({v})
-                q = p.intersection(set(g.neighbors(v)))
+                q = p.intersection(set(g.adj[v]))
 
                 if len(q) == 0:
                     if len(c) > len(c_max):
-                        # print(f"{c_max} unseated by {c}")
                         c_max = c
                 else:
-                    # c_max = max(c_max, expand(g, c, q, c_max), key=lambda x: len(x))
-                    c_max = expand(g, c, q, c_max)
+                    c_max = expand(c, q, c_max)
                 c = c - {v}
                 p = p - {v}
+            else:
+                break
 
         return c_max
 
-    return expand(g, set(), set(g.nodes), set())
+    return expand(set(), set(g.nodes), set())
 
 
 def test():
-    # TODO: implement testing of seq_max_clique
-    pass
+    graph = utils.read_dimacs_graph("in/miles250.col")
+    assert seq_max_clique(graph) == {'116', '53', '30', '10', '38', '113', '20', '24'}
+
+    graph = utils.read_dimacs_graph("in/huck.col")
+    assert seq_max_clique(graph) == {'55', '11', '59', '49', '1', '50', '5', '25', '29', '13', '40'}
+
+    graph = utils.read_dimacs_graph("in/anna.col")
+    assert seq_max_clique(graph) == {'36', '81', '116', '91', '135', '136', '74', '7', '18', '138', '99'}
+
+    graph = utils.read_dimacs_graph("in/homer.col")
+    assert seq_max_clique(graph) == {'452', '114', '189', '285', '353', '381', '491', '277', '387', '64', '549', '545',
+                                     '314'}
 
 
 if __name__ == "__main__":
