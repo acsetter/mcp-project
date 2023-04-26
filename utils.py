@@ -5,12 +5,9 @@ Comparing Sequential and Parallel Algorithm Performance for Solving the Maximum 
 By: Aaron Csetter, Dmytro Dobryin, Ian Pena, and Nathan Davis
 UNCW: Spring 2023
 """
-import copy
-import datetime
 import time
 import networkx as nx
 import csv
-from os import listdir, mkdir, remove
 from os.path import exists
 
 

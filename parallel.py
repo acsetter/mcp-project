@@ -5,7 +5,6 @@ Comparing Sequential and Parallel Algorithm Performance for Solving the Maximum 
 By: Aaron Csetter, Dmytro Dobryin, Ian Pena, and Nathan Davis
 UNCW: Spring 2023
 """
-import time
 from multiprocessing import shared_memory, Lock, Process, current_process, Queue
 from queue import Empty
 
@@ -75,7 +74,6 @@ def set_c_max(c: set):
     shl.shm.close()
 
 
-
 def init_idle_threads(num_processes: int):
     """
     Initialize the list of bools indicating the idle status of running processes.
@@ -120,6 +118,12 @@ def set_idle_threads(pid: int, b: bool):
 
 
 def all_idle_threads() -> bool:
+    """
+    Whether all threads are idle or not. NOTE: this is non-blocking
+    and will return False if the loack cannot be acquired. This
+    sidesteps a known issue with iterating over shared_memory.
+    :return: (bool) whether threads are idle or not.
+    """
     v = False
     if idle_lock.acquire(block=False):
         v = True
@@ -157,7 +161,6 @@ def expand(g: Graph, queue: Queue, c: set, p: set, pop=False):
             if len(q) == 0:
                 c_max = get_c_max()
                 if len(c) > len(c_max):
-                    # print(c)
                     set_c_max(c)
             else:
                 if not pop and any(get_idle_threads()) and queue.empty():
@@ -177,7 +180,6 @@ def work(g: Graph, queue: Queue):
     The work of a single processes treated as a worker thread.
     :param g: (Graph) a networkx graph
     :param queue: (Queue) queue to distribute work among threads
-    :param populating: (bool) whether the process should populate the queue on start
     :return: (None)
     """
     pid = int(current_process().name)
@@ -200,7 +202,6 @@ def work(g: Graph, queue: Queue):
 
         set_idle_threads(pid, True)
         flag = not all_idle_threads()
-        # time.sleep(0.002)
 
 
 def par_max_clique(g: Graph, num_processes: int):
