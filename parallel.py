@@ -54,12 +54,14 @@ class Idle:
         try:
             return any(self.shl)
         except:
+            # catches an error that occurs for __getItem__ of multiprocessing which is a known-bug
             return self.any()
 
     def all(self):
         try:
             return all(self.shl)
         except:
+            # catches an error that occurs for __getItem__ of multiprocessing which is a known-bug
             return self.all()
 
     def close(self):
@@ -73,8 +75,11 @@ def expand(g: Graph, task_queue: Queue, idle: Idle, c: set, p: set, c_max: C_Max
     """
     :param g: (Graph) a networkx graph
     :param task_queue: (Queue) queue to distribute work among threads
+    :param idle: (Idle) shared_memory object
     :param c: (set) the candidate set of vertices
     :param p: (set) the set of unprocessed vertices
+    :param c_max: (C_Max) shared_memory object
+    :param pop:  whether we are the populating call or not.
     :return: (None)
     """
     color, order = color_order(g, p)
@@ -128,7 +133,6 @@ def work(g: Graph, task_queue: Queue):
                 flag = False
             try:
                 c, p = task_queue.get(block=False)
-                # print(c_max.get())
                 expand(g, task_queue, idle, c, p, c_max)
             except Empty:
                 continue
@@ -146,7 +150,7 @@ def par_max_clique(g: Graph, num_processes: int):
     A python-friendly (naive) implementation of McCreesh and Prosser's parallel max clique algorithm
     as presented in 'doi:10.3390/a6040618'. This is a dynamic branch and bound algorithm that uses a
     greedy coloring heuristic to reduce the search space. NOTE: Bitset encodings of graph and vertices
-    are omitted in this implementation as well as shared memory optimizations.
+    are omitted in this implementation.
     :param g: (Graph) a networkx graph
     :param num_processes: (int) the number of concurrent processes to run
     :return: (set) the maximum clique of graph 'g'
@@ -180,8 +184,8 @@ def test():
     assert par_max_clique(graph, 3) == len({'36', '81', '116', '91', '135', '136', '74', '7', '18', '138', '99'})
 
     graph = utils.read_dimacs_graph("in/homer.col")
-    assert par_max_clique(graph, 4) == {'452', '114', '189', '285', '353', '381', '491', '277', '387', '64', '549',
-                                        '545', '314'}
+    assert par_max_clique(graph, 4) == len({'452', '114', '189', '285', '353', '381', '491', '277', '387', '64', '549',
+                                            '545', '314'})
 
 
 if __name__ == "__main__":
