@@ -35,17 +35,26 @@ def run_par_test(file_path, num_processes=range(2, 13)):
 
 
 def run_test(file_path, num_processes=range(2, 13), status=True):
+    """
+
+    :param file_path: (str)
+    :param num_processes: (Iterable)
+    :param status: (bool) whether to print status or not
+    :return: (dict) results of the test.
+    """
     g = utils.read_dimacs_graph(file_path)
-    if status:
-        utils.print_graph_info(g)
+    utils.print_graph_info(g)
     data = utils.fetch_graph_info(g)
     if status:
         print("Running sequential...")
+
     seq = run_seq_mca(g)
     if status:
         print(f"...took {seq[1]} seconds.\n")
+
     data["Max Clique"] = seq[0]
     data["Seq Time"] = seq[1]
+
     for i in num_processes:
         if status:
             print(f"Running parallel using {i} processes...")
@@ -65,8 +74,6 @@ def main() -> None:
     """
     Main entry point of program.
     """
-    args = sys.argv
-
     # add any .col or .mtx graphs you wish to test to the list:
     graphs = [
         "in/C125.9.col",
